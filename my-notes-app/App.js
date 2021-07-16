@@ -3,7 +3,7 @@ import { Text, View, StyleSheet,TextInput,TouchableOpacity } from 'react-native'
 import Constants from 'expo-constants';
 
 // You can import from local files
-import AssetExample from './components/AssetExample';
+import MyNotes from './components/MyNotes';
 
 // or any pure javascript modules available in npm
 
@@ -16,6 +16,10 @@ export default class App extends React.Component{
     noteText:''
   }
   }
+  markDone = (item) =>{
+    this.state.noteArr.splice(item, 1);
+    this.setState({noteArr:this.state.noteArr})
+}
 
 
   addTask=()=>{
@@ -33,11 +37,13 @@ export default class App extends React.Component{
     }
 }
 
-  render(){
-    var notes= this.state.noteArr.map((items)=>{
-    return <View><Text>{items.note}</Text>
-    <Text>{items.date}</Text>
-    </View>});
+render() {
+  var notes = this.state.noteArr.map((index, item) => {
+    return (
+      <MyNotes task={index} markDone ={()=>{this.markDone(item)}}/>
+    );
+  });
+
     return <View style={styles.container}>
     <View style={styles.header}>
     <Text style={{color:'white',fontSize:20}}>Notes</Text>
