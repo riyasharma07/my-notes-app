@@ -3,7 +3,7 @@ import { Text, View, StyleSheet,TextInput,TouchableOpacity } from 'react-native'
 import Constants from 'expo-constants';
 
 // You can import from local files
-import MyNotes from './components/MyNotes';
+import Mynotes from './components/Mynotes';
 
 // or any pure javascript modules available in npm
 
@@ -38,9 +38,14 @@ export default class App extends React.Component{
 }
 
 render() {
-  var notes = this.state.noteArr.map((index, item) => {
+  var notes = this.state.noteArr.map((index, items) => {
     return (
-      <MyNotes task={index} markDone ={()=>{this.markDone(item)}}/>
+      <Mynotes
+        task={index}
+        markDone={() => {
+          this.markDone(items);
+        }}
+      />
     );
   });
 
