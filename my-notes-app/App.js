@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Text, View, StyleSheet,TextInput,TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet,TextInput,TouchableOpacity,ScrollView } from 'react-native';
 import Constants from 'expo-constants';
 
 // You can import from local files
-import Mynotes from './components/Mynotes';
-
+import Mynotes from './components/Mynotes'
+import db from './components/config'
 // or any pure javascript modules available in npm
 
 
@@ -16,46 +16,66 @@ export default class App extends React.Component{
     noteText:''
   }
   }
-  markDone = (item) =>{
+   markDone = (item) => {
+    const node = db.ref("tasks").child(this.state.noteArr[item].id)
+    node.remove();
+
     this.state.noteArr.splice(item, 1);
-    this.setState({noteArr:this.state.noteArr})
-}
+   
+  };
+  
+  componentDidMount(){
+    const tasks = db.ref("tasks")
+    tasks.on("value",(data)=> {
+      const todos=data.val();
+      console.log(todos)
+      const taskList=[]
+      for (var id in todos){
+        taskList.push({id ,...todos[id]})
+
+      }
+      this.setState({noteArr:taskList})
+    })
+  }
 
 
   addTask=()=>{
+    const tasks = db.ref("tasks")
     var d= new Date()
     const monthsname=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     if(this.state.noteText){
-    this.state.noteArr.push({
-    note:this.state.noteText,
+    
+    const newTasks= { note:this.state.noteText,
     date: d.getDate()+"-"+monthsname[d.getMonth()]+"-"+d.getFullYear()
     
-    })
+    }
+    tasks.push(newTasks)
     this.setState({noteArr:this.state.noteArr})
     this.setState({noteText:''})
   console.log(this.state.noteArr)
     }
 }
 
-render() {
-  var notes = this.state.noteArr.map((index, items) => {
-    return (
-      <Mynotes
-        task={index}
-        markDone={() => {
-          this.markDone(items);
-        }}
-      />
-    );
-  });
-
+  
+     render() {
+    var notes = this.state.noteArr.map((index, items) => {
+      return (
+        <Mynotes
+          task={index}
+          markDone={() => {
+            this.markDone(items);
+          }}
+        />
+      );
+    });
+    
     return <View style={styles.container}>
     <View style={styles.header}>
     <Text style={{color:'white',fontSize:20}}>Notes</Text>
     </View>
-    <Text>
+    <ScrollView style={styles.scroll}>
    {notes}
-    </Text>
+    </ScrollView>
     <View style={styles.bottom}>
     <TextInput placeholder="Add a note" style={styles.input}
     onChangeText={(text)=>this.setState({noteText:text})}
@@ -110,6 +130,10 @@ const styles = StyleSheet.create({
     borderRadius:20,
     justifyContent:"center",alignItems:'center', marginBottom:8
 
+  },
+  scroll:{
+    flex:1,
+    marginBottom:100
   }
   
 });
